@@ -128,16 +128,24 @@ export async function storefrontQuery<T = any>(
   return json.data
 }
 
-export async function getCollectionProducts(tags?: string[]): Promise<ShopifyProduct[]> {
+function filterByExactTags(products: ShopifyProduct[], tags: string[]): ShopifyProduct[] {
+  const lowerTags = new Set(tags.map((t) => t.toLowerCase()))
+  return products.filter((p) =>
+    p.tags.some((t) => lowerTags.has(t.toLowerCase()))
+  )
+}
+
+async function getProductsByTagQuery(tags: string[]): Promise<ShopifyProduct[]> {
+  // Use Shopify's native search syntax — no collection access needed
+  const tagQuery = tags.map((t) => `tag:"${t}"`).join(' OR ')
+
   const query = `
     ${PRODUCT_FRAGMENT}
-    query GetCollectionProducts($id: ID!) {
-      collection(id: $id) {
-        products(first: 250) {
-          edges {
-            node {
-              ...ProductFragment
-            }
+    query GetProductsByTags($query: String!) {
+      products(first: 100, query: $query) {
+        edges {
+          node {
+            ...ProductFragment
           }
         }
       }
@@ -145,32 +153,45 @@ export async function getCollectionProducts(tags?: string[]): Promise<ShopifyPro
   `
 
   const data = await storefrontQuery<{
-    collection: {
-      products: {
-        edges: { node: ShopifyProduct }[]
+    products: { edges: { node: ShopifyProduct }[] }
+  }>(query, { query: tagQuery })
+
+  return data?.products?.edges?.map((e) => e.node) ?? []
+}
+
+export async function getCollectionProducts(tags?: string[]): Promise<ShopifyProduct[]> {
+  // Strategy 1: collection-scoped query (requires collection published to Storefront API)
+  try {
+    const query = `
+      ${PRODUCT_FRAGMENT}
+      query GetCollectionProducts($id: ID!) {
+        collection(id: $id) {
+          products(first: 250) {
+            edges {
+              node {
+                ...ProductFragment
+              }
+            }
+          }
+        }
       }
-    } | null
-  }>(query, { id: PROWEAR_COLLECTION_ID })
+    `
 
-  if (!data.collection) return []
+    const data = await storefrontQuery<{
+      collection: { products: { edges: { node: ShopifyProduct }[] } } | null
+    }>(query, { id: PROWEAR_COLLECTION_ID })
 
-  const allProducts = data.collection.products.edges.map((e) => e.node)
+    if (data?.collection?.products?.edges?.length) {
+      const all = data.collection.products.edges.map((e) => e.node)
+      return tags?.length ? filterByExactTags(all, tags) : all
+    }
+  } catch {
+    // Collection not accessible — fall through to tag query
+  }
 
-  if (!tags || tags.length === 0) return allProducts
-
-  // Filter by tags (case-insensitive, any match)
-  const lowerTags = tags.map((t) => t.toLowerCase())
-
-  return allProducts.filter((product) =>
-    product.tags.some((productTag) =>
-      lowerTags.some(
-        (filterTag) =>
-          productTag.toLowerCase() === filterTag ||
-          productTag.toLowerCase().includes(filterTag) ||
-          filterTag.includes(productTag.toLowerCase())
-      )
-    )
-  )
+  // Strategy 2: native Shopify tag search (works without collection access)
+  if (!tags?.length) return []
+  return getProductsByTagQuery(tags)
 }
 
 export async function getProductByHandle(handle: string): Promise<ShopifyProduct | null> {

@@ -3,7 +3,7 @@ import ProductGrid from '../components/product-grid'
 import { getCollectionProducts } from '../../lib/shopify-storefront'
 
 export default async function HeadwearPage() {
-  const tags = ['Headwear', 'Head Wear', 'Caps', 'Cap', 'Snapbacks', 'Snapback', 'Beanies', 'Beanie', 'Bucket Hats', 'Bucket Hat', 'Five Panel', 'Truckers', 'Trucker', 'Hats', 'Hat']
+  const tags = ['Headwear', 'Caps', 'Snapbacks', 'Beanies', 'Bucket Hats', 'Five Panel', 'Truckers']
   const products = await getCollectionProducts(tags)
 
   return (
