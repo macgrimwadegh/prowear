@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure consistent font loading */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2")
+    format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 14.5%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 14.5%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 14.5%;
+  --primary: 0 0% 20.5%;
+  --primary-foreground: 0 0% 98.5%;
+  --secondary: 0 0% 97%;
+  --secondary-foreground: 0 0% 20.5%;
+  --muted: 0 0% 97%;
+  --muted-foreground: 0 0% 55.6%;
+  --accent: 0 0% 97%;
+  --accent-foreground: 0 0% 20.5%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 92.2%;
+  --input: 0 0% 92.2%;
+  --ring: 0 0% 70.8%;
+  --chart-1: 41 78% 53%;
+  --chart-2: 185 50% 50%;
+  --chart-3: 227 40% 38%;
+  --chart-4: 84 65% 70%;
+  --chart-5: 70 64% 65%;
+  --radius: 0.625rem;
+  --sidebar-background: 0 0% 98.5%;
+  --sidebar-foreground: 0 0% 14.5%;
+  --sidebar-primary: 0 0% 20.5%;
+  --sidebar-primary-foreground: 0 0% 98.5%;
+  --sidebar-accent: 0 0% 97%;
+  --sidebar-accent-foreground: 0 0% 20.5%;
+  --sidebar-border: 0 0% 92.2%;
+  --sidebar-ring: 0 0% 70.8%;
+}
+
+.dark {
+  --background: 0 0% 14.5%;
+  --foreground: 0 0% 98.5%;
+  --card: 0 0% 14.5%;
+  --card-foreground: 0 0% 98.5%;
+  --popover: 0 0% 14.5%;
+  --popover-foreground: 0 0% 98.5%;
+  --primary: 0 0% 98.5%;
+  --primary-foreground: 0 0% 20.5%;
+  --secondary: 0 0% 26.9%;
+  --secondary-foreground: 0 0% 98.5%;
+  --muted: 0 0% 26.9%;
+  --muted-foreground: 0 0% 70.8%;
+  --accent: 0 0% 26.9%;
+  --accent-foreground: 0 0% 98.5%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 84% 60%;
+  --border: 0 0% 26.9%;
+  --input: 0 0% 26.9%;
+  --ring: 0 0% 43.9%;
+  --chart-1: 264 60% 49%;
+  --chart-2: 162 55% 70%;
+  --chart-3: 70 64% 65%;
+  --chart-4: 304 70% 63%;
+  --chart-5: 16 75% 65%;
+  --sidebar-background: 0 0% 20.5%;
+  --sidebar-foreground: 0 0% 98.5%;
+  --sidebar-primary: 264 60% 49%;
+  --sidebar-primary-foreground: 0 0% 98.5%;
+  --sidebar-accent: 0 0% 26.9%;
+  --sidebar-accent-foreground: 0 0% 98.5%;
+  --sidebar-border: 0 0% 26.9%;
+  --sidebar-ring: 0 0% 43.9%;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .animate-scroll {
+    animation: scroll 40s linear infinite;
+  }
+  .animate-scroll:hover {
+    animation-play-state: paused;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+      sans-serif;
+  }
+
+  /* Ensure consistent font rendering */
+  html {
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+      sans-serif;
+  }
+}
+
+/* Custom font for logo */
+.font-futuristic {
+  font-family: "SF Pro Display", "Helvetica Neue", "Arial Black", "Futura", "Avenir Next", system-ui, sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+/* Logo carousel animation - adjusted for smaller logos */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-200px * 10 - 3rem * 10));
+  }
+}
+
+@media (min-width: 640px) {
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(-300px * 10 - 5rem * 10));
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(-320px * 10 - 8rem * 10));
+    }
+  }
+}
+
+/* Force font consistency across all elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+div,
+button,
+input,
+textarea,
+select {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif !important;
+}
+
+/* Standardized logo constraints */
+.logo {
+  height: 32px !important;
+  width: auto !important;
+  max-width: 100% !important;
+  display: inline-block !important;
+}
+
+/* Prevent any parent selectors from overriding logo properties */
+* .logo,
+*:not(.logo) .logo {
+  height: 32px !important;
+  width: auto !important;
+  transform: none !important;
+  letter-spacing: inherit !important;
+  filter: none !important;
+  object-fit: none !important;
+}
