@@ -14,7 +14,7 @@ export default function MainPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true)
-    }, 500)
+    }, 300)
     return () => clearTimeout(timer)
   }, [])
 
@@ -28,8 +28,8 @@ export default function MainPage() {
             data-name="Layer 1"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 608 46.34"
-            className="h-6 sm:h-12 md:h-[69px] w-auto mb-5 sm:mb-10 max-w-[90vw] mx-auto"
-            fill="black"
+            className="h-6 sm:h-12 md:h-[69px] w-auto mb-5 sm:mb-10 max-w-[90vw] mx-auto text-black"
+            fill="currentColor"
           >
             <path d="M.26,11.88C3.85,8.35,7.43,4.8,11.07,1.34c.43-.4,1.29-.46,1.96-.46,12.12-.02,24.22-.09,36.33,0,6.33.05,12.49,1.13,18.04,4.44,9.88,5.9,10.08,18.05.27,24.07-2.47,1.52-5.33,2.62-8.17,3.27-3.54.82-7.22,1.28-10.85,1.34-9.64.17-19.29.11-28.93.02-1.79-.02-2.33.56-2.25,2.29.12,2.93.03,5.87.03,8.95H.11c-.04-.86-.11-1.62-.11-2.37,0-5.84,0-11.69,0-17.53,0-2.79,0-2.8,2.72-2.8,15.28,0,30.56.05,45.83-.07,2.04-.02,4.14-.66,6.09-1.33,1.66-.58,2.75-2.13,2.31-3.83-.35-1.34-1.35-2.99-2.51-3.51-1.92-.85-4.2-1.21-6.33-1.23-15.06-.09-30.12-.05-45.2-.04H.63c-.12-.23-.24-.45-.37-.68" />
             <path d="M83.38,11.49c3.59-3.36,7.16-6.74,10.8-10.05.45-.4,1.28-.56,1.94-.56,12.81-.02,25.62-.11,38.45.04,6.37.07,12.63,1.12,18.35,4.21,7.49,4.06,9.63,12.85,4.67,19.39-2.34,3.09-5.62,4.82-9.30,5.87-.67.19-1.32.39-2.01.59,5.74,4.70,11.37,9.31,17.43,14.25-1.14.09-1.73.17-2.32.17-6.48.02-12.96.07-19.43-.05-1.06-.02-2.34-.5-3.14-1.21-3.32-2.93-6.45-6.09-9.77-9.03-.81-.72-2.07-1.28-3.13-1.29-7.68-.12-15.35-.03-23.03-.1-1.56-.02-1.91.57-1.88,1.97.07,3.15.02,6.30.02,9.72h-10.76c-1.62,0-3.25-.13-4.86.03-1.77.17-2.11-.59-2.09-2.18.09-6.13.09-12.26-.02-18.38-.03-1.86.51-2.37,2.38-2.36,15.49.07,30.99.09,46.48-.02,2.33-.02,4.72-.63,6.97-1.31,1.65-.50,2.97-1.74,2.91-3.73-.05-1.93-1.28-3.26-2.94-3.75-2.20-.63-4.53-1.10-6.81-1.11-15.29-.09-30.57-.04-45.85-.04h-2.42c-.22-.36-.44-.72-.65-1.07" />
@@ -332,33 +332,17 @@ export default function MainPage() {
           <div className="relative overflow-hidden w-full">
             <div className="flex animate-scroll items-center gap-12 sm:gap-20 md:gap-32 py-2">
               {/* First set of logos */}
-              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg">
-                <img
-                  src="/images/design-mode/image%281%29%281%29(2).png"
-                  alt="Giant"
-                  className="w-full h-full object-contain rounded-lg"
-                />
+              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg border border-gray-200">
+                <span className="text-xs sm:text-sm font-medium text-gray-500 tracking-wider uppercase text-center px-3">Giant</span>
               </div>
-              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg">
-                <img
-                  src="/images/design-mode/image%281%29%281%29(2).png"
-                  alt="mitchdwd - Distinctly Australian"
-                  className="w-full h-full object-contain rounded-lg"
-                />
+              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg border border-gray-200">
+                <span className="text-xs sm:text-sm font-medium text-gray-500 tracking-wider uppercase text-center px-3">Mitchdwd</span>
               </div>
-              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg">
-                <img
-                  src="/images/design-mode/image%281%29%281%29(2).png"
-                  alt="Pancare Foundation"
-                  className="w-full h-full object-contain rounded-lg"
-                />
+              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg border border-gray-200">
+                <span className="text-xs sm:text-sm font-medium text-gray-500 tracking-wider uppercase text-center px-3">Pancare Foundation</span>
               </div>
               <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 bg-black flex items-center justify-center rounded-lg">
-                <img
-                  src="/images/design-mode/image%281%29%281%29(1).png"
-                  alt="Bicycle Superstore"
-                  className="w-full h-full object-contain rounded-lg"
-                />
+                <span className="text-xs sm:text-sm font-medium text-gray-300 tracking-wider uppercase text-center px-3">Bicycle Superstore</span>
               </div>
               <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg">
                 <img
@@ -402,42 +386,22 @@ export default function MainPage() {
                   className="w-full h-full object-contain rounded-lg"
                 />
               </div>
-              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg">
-                <img
-                  src="/images/design-mode/combologo.jpg%281%29%281%29(1).jpeg"
-                  alt="Lorne - Pier to Pub, Mountain to Surf"
-                  className="w-full h-full object-contain rounded-lg"
-                />
+              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg border border-gray-200">
+                <span className="text-xs sm:text-sm font-medium text-gray-500 tracking-wider uppercase text-center px-3">Lorne Events</span>
               </div>
 
               {/* Duplicate set for seamless loop */}
-              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg">
-                <img
-                  src="/images/design-mode/image%281%29%281%29(2).png"
-                  alt="Giant"
-                  className="w-full h-full object-contain rounded-lg"
-                />
+              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg border border-gray-200">
+                <span className="text-xs sm:text-sm font-medium text-gray-500 tracking-wider uppercase text-center px-3">Giant</span>
               </div>
-              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg">
-                <img
-                  src="/images/design-mode/image%281%29%281%29(2).png"
-                  alt="mitchdwd - Distinctly Australian"
-                  className="w-full h-full object-contain rounded-lg"
-                />
+              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg border border-gray-200">
+                <span className="text-xs sm:text-sm font-medium text-gray-500 tracking-wider uppercase text-center px-3">Mitchdwd</span>
               </div>
-              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg">
-                <img
-                  src="/images/design-mode/image%281%29%281%29(2).png"
-                  alt="Pancare Foundation"
-                  className="w-full h-full object-contain rounded-lg"
-                />
+              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg border border-gray-200">
+                <span className="text-xs sm:text-sm font-medium text-gray-500 tracking-wider uppercase text-center px-3">Pancare Foundation</span>
               </div>
               <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 bg-black flex items-center justify-center rounded-lg">
-                <img
-                  src="/images/design-mode/image%281%29%281%29(1).png"
-                  alt="Bicycle Superstore"
-                  className="w-full h-full object-contain rounded-lg"
-                />
+                <span className="text-xs sm:text-sm font-medium text-gray-300 tracking-wider uppercase text-center px-3">Bicycle Superstore</span>
               </div>
               <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg">
                 <img
@@ -481,12 +445,8 @@ export default function MainPage() {
                   className="w-full h-full object-contain rounded-lg"
                 />
               </div>
-              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg">
-                <img
-                  src="/images/design-mode/combologo.jpg%281%29%281%29(1).jpeg"
-                  alt="Lorne - Pier to Pub, Mountain to Surf"
-                  className="w-full h-full object-contain rounded-lg"
-                />
+              <div className="flex-shrink-0 w-40 h-20 sm:w-60 sm:h-30 md:w-80 md:h-40 flex items-center justify-center rounded-lg border border-gray-200">
+                <span className="text-xs sm:text-sm font-medium text-gray-500 tracking-wider uppercase text-center px-3">Lorne Events</span>
               </div>
             </div>
           </div>
