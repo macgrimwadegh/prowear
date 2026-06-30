@@ -238,9 +238,40 @@ export async function getCollectionProducts(tags?: string[]): Promise<ShopifyPro
 }
 
 const KIDS_PATTERN = /kids|youth|infant/i
+const SAFETY_PATTERN = /safety/i
 
 export function excludeKidsProducts(products: ShopifyProduct[]): ShopifyProduct[] {
   return products.filter((p) => !KIDS_PATTERN.test(p.title))
+}
+
+export function excludeProductsWithoutImages(products: ShopifyProduct[]): ShopifyProduct[] {
+  return products.filter((p) => Boolean(p.featuredImage?.url))
+}
+
+export function excludeSafetyProducts(products: ShopifyProduct[]): ShopifyProduct[] {
+  return products.filter((p) => !SAFETY_PATTERN.test(p.title))
+}
+
+// Searches for products with "Safety" in the title — used by /workwear to pull
+// safety items regardless of their Shopify tags.
+export async function getSafetyProducts(): Promise<ShopifyProduct[]> {
+  const gql = `
+    ${PRODUCT_FRAGMENT}
+    query GetSafetyProducts {
+      products(first: 100, query: "Safety", sortKey: TITLE) {
+        edges {
+          node {
+            ...ProductFragment
+          }
+        }
+      }
+    }
+  `
+  const data = await storefrontQuery<{
+    products: { edges: { node: ShopifyProduct }[] }
+  }>(gql)
+  const all = data?.products?.edges?.map((e) => e.node) ?? []
+  return all.filter((p) => SAFETY_PATTERN.test(p.title))
 }
 
 export async function getProductByHandle(handle: string): Promise<ShopifyProduct | null> {
