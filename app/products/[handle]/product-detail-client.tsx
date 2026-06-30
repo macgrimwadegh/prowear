@@ -1,40 +1,164 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { ShopifyProduct } from '../../../lib/shopify-storefront'
 import { getProductColors, getColorImage } from '../../../lib/shopify-storefront'
 import { SIZES, type Size, type SizeQuantities } from '../../../lib/quote-types'
 import { useQuoteCart } from '../../contexts/quote-cart-context'
 
-const COLOR_MAP: Record<string, string> = {
-  white: 'bg-white border-gray-300',
-  black: 'bg-black',
-  navy: 'bg-[#001F5B]',
-  'navy blue': 'bg-[#001F5B]',
-  red: 'bg-red-600',
-  blue: 'bg-blue-600',
-  green: 'bg-green-600',
-  grey: 'bg-gray-400',
-  gray: 'bg-gray-400',
-  'light grey': 'bg-gray-300',
-  'light gray': 'bg-gray-300',
-  charcoal: 'bg-gray-700',
-  yellow: 'bg-yellow-400',
-  orange: 'bg-orange-500',
-  purple: 'bg-purple-600',
-  pink: 'bg-pink-400',
-  brown: 'bg-amber-800',
-  khaki: 'bg-stone-400',
-  'bottle green': 'bg-green-900',
-  royal: 'bg-blue-700',
-  'royal blue': 'bg-blue-700',
-  maroon: 'bg-red-900',
-  teal: 'bg-teal-500',
+// Hex values for common apparel colour names.
+// Keys are lowercase; partial-word matching is used as a fallback.
+const COLOR_HEX: Record<string, string> = {
+  // Core neutrals
+  black: '#000000',
+  white: '#FFFFFF',
+  grey: '#888888',
+  gray: '#888888',
+  silver: '#C0C0C0',
+  charcoal: '#3C3C3C',
+  slate: '#6B7280',
+  'mid grey': '#808080',
+  'mid gray': '#808080',
+  'dark grey': '#3A3A3A',
+  'dark gray': '#3A3A3A',
+  'light grey': '#C8C8C8',
+  'light gray': '#C8C8C8',
+  'dark charcoal': '#2B2B2B',
+
+  // Blues
+  navy: '#001A57',
+  'navy blue': '#001A57',
+  'french navy': '#001F5B',
+  'dark navy': '#00124A',
+  royal: '#2B4AC7',
+  'royal blue': '#2B4AC7',
+  cobalt: '#0047AB',
+  blue: '#1E40AF',
+  sky: '#7EC8E3',
+  'sky blue': '#7EC8E3',
+  'ice blue': '#A8D8EA',
+  'powder blue': '#B0D0E8',
+  'steel blue': '#4682B4',
+  'dusty blue': '#7C9FB0',
+  denim: '#1560BD',
+  'electric blue': '#0088FF',
+  midnight: '#1C1C54',
+  ocean: '#006994',
+
+  // Greens
+  green: '#2D7A2D',
+  bottle: '#005C3B',
+  'bottle green': '#005C3B',
+  forest: '#1B5E20',
+  'forest green': '#1B5E20',
+  army: '#4A5230',
+  'military green': '#4A5230',
+  khaki: '#B5A642',
+  olive: '#6B6B3A',
+  sage: '#A2A98B',
+  mint: '#98E4C0',
+  teal: '#007B77',
+  emerald: '#007A4D',
+  'hunter green': '#355E3B',
+  jade: '#00A86B',
+
+  // Reds & Pinks
+  red: '#CC0000',
+  'bright red': '#E8000C',
+  'heritage red': '#9B1C1C',
+  maroon: '#7B0000',
+  burgundy: '#7B1535',
+  wine: '#6B2737',
+  brick: '#9C3B2F',
+  rust: '#B7410E',
+  coral: '#E8735A',
+  pink: '#E8A0B0',
+  'hot pink': '#E82C8A',
+  'electric pink': '#E8005A',
+  blush: '#E8C0C0',
+  'dusty pink': '#C4969B',
+  rose: '#C01C5E',
+
+  // Yellows & Oranges
+  yellow: '#F5C900',
+  gold: '#CFA500',
+  mustard: '#C89F00',
+  amber: '#FFBF00',
+  orange: '#E56400',
+  lemon: '#F0E050',
+
+  // Purples
+  purple: '#6B2D8B',
+  violet: '#6A0DAD',
+  lavender: '#B57BDC',
+  plum: '#7B1B6B',
+  mauve: '#AA8899',
+
+  // Browns & naturals
+  brown: '#7B4520',
+  chocolate: '#5C2C0A',
+  tan: '#C89B6E',
+  camel: '#B88B4A',
+  stone: '#A89880',
+  sand: '#C4A86A',
+  natural: '#EDE0C8',
+  oatmeal: '#E8D8C0',
+  cream: '#FFFACD',
+  linen: '#E8DFD0',
+  earth: '#907060',
+  fawn: '#C8A878',
+
+  // Marles / heathered
+  'athletic marle': '#B0B0B0',
+  'grey marle': '#A8A8A8',
+  'gray marle': '#A8A8A8',
+  'charcoal marle': '#585858',
+  'black marle': '#383838',
+  'white marle': '#E8E8E8',
+  'navy marle': '#2A3D80',
+  'mid grey marle': '#909090',
+  'light grey marle': '#C8C8C8',
+  'royal marle': '#4060CC',
+  'red marle': '#CC3030',
+  marle: '#A8A8A8',
+
+  // Washed / faded
+  'washed black': '#2A2A2A',
+  'faded navy': '#2A3D5A',
+  'washed teal': '#3A7A78',
+
+  // Hi-Vis
+  'fluoro yellow': '#E8FF00',
+  'fluoro orange': '#FF6000',
+  'hi-vis yellow': '#E8FF00',
+  'hi vis yellow': '#E8FF00',
+  'hi-vis orange': '#FF6000',
+  'hi vis orange': '#FF6000',
+  'yellow fluro': '#E8FF00',
+  'orange fluro': '#FF6000',
 }
 
-function getColorClasses(color: string): string {
-  const key = color.toLowerCase()
-  return COLOR_MAP[key] || 'bg-gray-200'
+function getSwatchHex(colorName: string): string {
+  const key = colorName.toLowerCase().trim()
+
+  // Direct match
+  if (COLOR_HEX[key]) return COLOR_HEX[key]
+
+  // Word-by-word partial match (handles "Bottle Green/White", "Army/Black", etc.)
+  const words = key.split(/[\s/\-,]+/).filter(Boolean)
+  for (const word of words) {
+    if (COLOR_HEX[word]) return COLOR_HEX[word]
+  }
+
+  return '#9E9E9E' // neutral grey fallback
+}
+
+// Used to add a visible border on very light swatches (white, cream, etc.)
+function isLightHex(hex: string): boolean {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.75
 }
 
 function makeEmptyQuantities(): SizeQuantities {
@@ -53,23 +177,27 @@ export default function ProductDetailClient({ product }: Props) {
   const [quantities, setQuantities] = useState<SizeQuantities>(makeEmptyQuantities())
   const [notes, setNotes] = useState('')
   const [added, setAdded] = useState(false)
-  const [currentImage, setCurrentImage] = useState<string>(
-    product.featuredImage?.url || product.images.edges[0]?.node.url || ''
-  )
-
-  // Update image when color changes
-  useEffect(() => {
-    if (selectedColor) {
-      const colorImg = getColorImage(product, selectedColor)
-      if (colorImg) setCurrentImage(colorImg)
+  const [currentImage, setCurrentImage] = useState<string>(() => {
+    // Initialise with the image for the first colour if possible
+    if (colors[0]) {
+      const img = getColorImage(product, colors[0])
+      if (img) return img
     }
-  }, [selectedColor, product])
+    return product.featuredImage?.url || product.images.edges[0]?.node.url || ''
+  })
 
   const totalUnits = Object.values(quantities).reduce((a, b) => a + b, 0)
   const price = parseFloat(product.priceRange.minVariantPrice.amount)
   const formattedPrice = `$${price.toFixed(2)} ex GST`
 
   const allImages = product.images.edges.map((e) => e.node)
+
+  function handleColorClick(color: string) {
+    setSelectedColor(color)
+    // Directly update image — no useEffect needed for clicks
+    const img = getColorImage(product, color)
+    if (img) setCurrentImage(img)
+  }
 
   function handleQuantityChange(size: Size, value: string) {
     const num = Math.max(0, parseInt(value, 10) || 0)
@@ -145,16 +273,22 @@ export default function ProductDetailClient({ product }: Props) {
             <p className="text-[10px] tracking-widest uppercase text-gray-400 mb-2">Colour</p>
             <div className="flex flex-wrap gap-2">
               {colors.map((color) => {
-                const colorClasses = getColorClasses(color)
+                const hex = getSwatchHex(color)
+                const light = isLightHex(hex)
                 const isSelected = selectedColor === color
                 return (
                   <button
                     key={color}
                     type="button"
                     title={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`w-7 h-7 rounded-full border-2 transition-all ${colorClasses} ${
-                      isSelected ? 'border-black scale-110' : 'border-gray-200 hover:border-gray-400'
+                    onClick={() => handleColorClick(color)}
+                    style={{ backgroundColor: hex }}
+                    className={`w-7 h-7 rounded-full border-2 transition-all ${
+                      isSelected
+                        ? 'border-black scale-110'
+                        : light
+                        ? 'border-gray-300 hover:border-gray-500'
+                        : 'border-transparent hover:border-gray-400'
                     }`}
                   />
                 )
