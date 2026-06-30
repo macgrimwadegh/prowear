@@ -8,17 +8,19 @@ import {
 } from '../../lib/shopify-storefront'
 
 const FETCH_TAGS = ['Workwear', 'Aprons & Overalls']
-const TABS = ['Workwear', 'Aprons & Overalls', "Women's"]
+const TABS = ['Tops', 'Jackets', 'Shirts', 'Aprons & Overalls', "Women's"]
+
+// Title-based classifiers for the Workwear tag split
+const JACKET_RE = /jacket|fleece|zip|hoodie/i
+const SHIRT_RE = /\bshirt\b/i
+const TEE_RE = /tee|t-shirt/i
 
 export default async function WorkwearPage() {
-  // Fetch workwear-tagged products and safety-titled products in parallel.
-  // Safety products appear here regardless of their Shopify tags.
   const [regular, safety] = await Promise.all([
     getCollectionProducts(FETCH_TAGS),
     getSafetyProducts(),
   ])
 
-  // Merge, deduplicating by product id
   const seen = new Set<string>()
   const merged = [...regular, ...safety].filter((p) => {
     if (seen.has(p.id)) return false
@@ -26,15 +28,26 @@ export default async function WorkwearPage() {
     return true
   })
 
-  // Do NOT apply excludeSafetyProducts here — this is where they belong
   const products = excludeProductsWithoutImages(excludeKidsProducts(merged))
 
-  const byTag = (tag: string) =>
-    products.filter((p) => p.tags.some((t) => t.toLowerCase() === tag.toLowerCase()))
+  // Aprons & Overalls products are strictly isolated — excluded from all other tabs
+  const isApron = (p: (typeof products)[0]) =>
+    p.tags.some((t) => t.toLowerCase() === 'aprons & overalls')
+
+  const workItems = products.filter((p) => !isApron(p))
 
   const tabGroups = {
-    'Workwear': byTag('Workwear'),
-    'Aprons & Overalls': byTag('Aprons & Overalls'),
+    // Tops: anything that isn't a jacket and isn't a shirt (t-shirts/tees stay here)
+    'Tops': workItems.filter(
+      (p) => !JACKET_RE.test(p.title) && (!SHIRT_RE.test(p.title) || TEE_RE.test(p.title))
+    ),
+    // Jackets: jacket, fleece, any zip style, hoodie
+    'Jackets': workItems.filter((p) => JACKET_RE.test(p.title)),
+    // Shirts: "shirt" in title, excluding t-shirts and tees
+    'Shirts': workItems.filter(
+      (p) => SHIRT_RE.test(p.title) && !TEE_RE.test(p.title)
+    ),
+    'Aprons & Overalls': products.filter((p) => isApron(p)),
     "Women's": products.filter((p) => p.title.includes("Wo's")),
   }
 

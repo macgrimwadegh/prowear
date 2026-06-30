@@ -5,22 +5,23 @@ import ProductGrid from './product-grid'
 import type { ShopifyProduct } from '../../lib/shopify-storefront'
 
 interface Props {
-  all: ShopifyProduct[]
+  all?: ShopifyProduct[]
   tabGroups: Record<string, ShopifyProduct[]>
   tabs: string[]
 }
 
-export default function CategoryFilter({ all, tabGroups, tabs }: Props) {
-  const [active, setActive] = useState('All')
-
-  // Only show tabs that have at least one product
+export default function CategoryFilter({ tabGroups, tabs }: Props) {
   const visibleTabs = tabs.filter((t) => (tabGroups[t]?.length ?? 0) > 0)
-  const displayed = active === 'All' ? all : (tabGroups[active] ?? [])
+
+  // Default to first populated tab — no "All" view
+  const [active, setActive] = useState(() => visibleTabs[0] ?? tabs[0])
+
+  const displayed = tabGroups[active] ?? []
 
   return (
     <div>
       <div className="flex flex-wrap gap-2 mb-8">
-        {['All', ...visibleTabs].map((tab) => (
+        {visibleTabs.map((tab) => (
           <button
             key={tab}
             type="button"
