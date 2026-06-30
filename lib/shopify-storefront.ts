@@ -135,14 +135,18 @@ function filterByExactTags(products: ShopifyProduct[], tags: string[]): ShopifyP
   )
 }
 
+// Paginated tag search — loops through all pages until hasNextPage is false.
+// Uses first:250 (Shopify max) and sortKey:TITLE for stable alphabetical order.
 async function getProductsByTagQuery(tags: string[]): Promise<ShopifyProduct[]> {
-  // Use Shopify's native search syntax — no collection access needed
   const tagQuery = tags.map((t) => `tag:"${t}"`).join(' OR ')
-
-  const query = `
+  const gql = `
     ${PRODUCT_FRAGMENT}
-    query GetProductsByTags($query: String!) {
-      products(first: 100, query: $query) {
+    query GetProductsByTags($query: String!, $cursor: String) {
+      products(first: 250, query: $query, after: $cursor, sortKey: TITLE) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
         edges {
           node {
             ...ProductFragment
@@ -152,44 +156,83 @@ async function getProductsByTagQuery(tags: string[]): Promise<ShopifyProduct[]> 
     }
   `
 
-  const data = await storefrontQuery<{
-    products: { edges: { node: ShopifyProduct }[] }
-  }>(query, { query: tagQuery })
+  const all: ShopifyProduct[] = []
+  let cursor: string | null = null
+  let hasNextPage = true
 
-  return data?.products?.edges?.map((e) => e.node) ?? []
+  while (hasNextPage) {
+    const data = await storefrontQuery<{
+      products: {
+        pageInfo: { hasNextPage: boolean; endCursor: string | null }
+        edges: { node: ShopifyProduct }[]
+      }
+    }>(gql, { query: tagQuery, cursor })
+
+    if (!data?.products) break
+    all.push(...data.products.edges.map((e) => e.node))
+    hasNextPage = data.products.pageInfo.hasNextPage
+    cursor = data.products.pageInfo.endCursor
+  }
+
+  return all
 }
 
-export async function getCollectionProducts(tags?: string[]): Promise<ShopifyProduct[]> {
-  // Strategy 1: collection-scoped query (requires collection published to Storefront API)
-  try {
-    const query = `
-      ${PRODUCT_FRAGMENT}
-      query GetCollectionProducts($id: ID!) {
-        collection(id: $id) {
-          products(first: 250) {
-            edges {
-              node {
-                ...ProductFragment
-              }
+// Paginated collection query — loops through all pages.
+async function getCollectionAllProducts(): Promise<ShopifyProduct[]> {
+  const gql = `
+    ${PRODUCT_FRAGMENT}
+    query GetCollectionProducts($id: ID!, $cursor: String) {
+      collection(id: $id) {
+        products(first: 250, after: $cursor, sortKey: TITLE) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          edges {
+            node {
+              ...ProductFragment
             }
           }
         }
       }
-    `
+    }
+  `
 
+  const all: ShopifyProduct[] = []
+  let cursor: string | null = null
+  let hasNextPage = true
+
+  while (hasNextPage) {
     const data = await storefrontQuery<{
-      collection: { products: { edges: { node: ShopifyProduct }[] } } | null
-    }>(query, { id: PROWEAR_COLLECTION_ID })
+      collection: {
+        products: {
+          pageInfo: { hasNextPage: boolean; endCursor: string | null }
+          edges: { node: ShopifyProduct }[]
+        }
+      } | null
+    }>(gql, { id: PROWEAR_COLLECTION_ID, cursor })
 
-    if (data?.collection?.products?.edges?.length) {
-      const all = data.collection.products.edges.map((e) => e.node)
+    if (!data?.collection?.products) break
+    all.push(...data.collection.products.edges.map((e) => e.node))
+    hasNextPage = data.collection.products.pageInfo.hasNextPage
+    cursor = data.collection.products.pageInfo.endCursor
+  }
+
+  return all
+}
+
+export async function getCollectionProducts(tags?: string[]): Promise<ShopifyProduct[]> {
+  // Strategy 1: collection-scoped paginated query (requires collection published to Storefront API)
+  try {
+    const all = await getCollectionAllProducts()
+    if (all.length > 0) {
       return tags?.length ? filterByExactTags(all, tags) : all
     }
   } catch {
     // Collection not accessible — fall through to tag query
   }
 
-  // Strategy 2: native Shopify tag search (works without collection access)
+  // Strategy 2: paginated native tag search (works without collection access)
   if (!tags?.length) return []
   return getProductsByTagQuery(tags)
 }
