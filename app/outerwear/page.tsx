@@ -7,7 +7,6 @@ import {
   excludeSafetyProducts,
 } from '../../lib/shopify-storefront'
 
-// Sweatshirts added here — hoodies/crews moved from /basewear, shown as "Sweats" tab.
 const FETCH_TAGS = ['Jackets', 'Puffers', 'Sweatshirts']
 const TABS = ['Jackets', 'Puffers', 'Sweats', "Women's"]
 
@@ -15,14 +14,16 @@ export default async function OuterwearPage() {
   const raw = await getCollectionProducts(FETCH_TAGS)
   const products = excludeProductsWithoutImages(excludeSafetyProducts(excludeKidsProducts(raw)))
 
+  const isWomens = (p: (typeof products)[0]) => p.title.includes("Wo's")
+  const mens = products.filter((p) => !isWomens(p))
   const byTag = (tag: string) =>
-    products.filter((p) => p.tags.some((t) => t.toLowerCase() === tag.toLowerCase()))
+    mens.filter((p) => p.tags.some((t) => t.toLowerCase() === tag.toLowerCase()))
 
   const tabGroups = {
     'Jackets': byTag('Jackets'),
     'Puffers': byTag('Puffers'),
     'Sweats': byTag('Sweatshirts'),
-    "Women's": products.filter((p) => p.title.includes("Wo's")),
+    "Women's": products.filter((p) => isWomens(p)),
   }
 
   return (

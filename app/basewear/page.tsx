@@ -7,7 +7,6 @@ import {
   excludeSafetyProducts,
 } from '../../lib/shopify-storefront'
 
-// Sweatshirts removed — moved to /outerwear. Activewear added for the Active tab.
 const FETCH_TAGS = ['T-Shirts', 'Longsleeves', 'Tanks & Singlets', 'Activewear']
 const TABS = ['T-Shirts', 'Longsleeves', 'Tanks & Singlets', 'Active', "Women's"]
 
@@ -15,19 +14,22 @@ export default async function BasewearPage() {
   const raw = await getCollectionProducts(FETCH_TAGS)
   const products = excludeProductsWithoutImages(excludeSafetyProducts(excludeKidsProducts(raw)))
 
+  const isWomens = (p: (typeof products)[0]) => p.title.includes("Wo's")
+  // Non-women's products only — used as the base for every non-Women's tab
+  const mens = products.filter((p) => !isWomens(p))
   const byTag = (tag: string) =>
-    products.filter((p) => p.tags.some((t) => t.toLowerCase() === tag.toLowerCase()))
+    mens.filter((p) => p.tags.some((t) => t.toLowerCase() === tag.toLowerCase()))
 
   const tabGroups = {
     'T-Shirts': byTag('T-Shirts'),
     'Longsleeves': byTag('Longsleeves'),
     'Tanks & Singlets': byTag('Tanks & Singlets'),
-    'Active': products.filter(
+    'Active': mens.filter(
       (p) =>
         p.tags.some((t) => t.toLowerCase() === 'activewear') ||
         /active/i.test(p.title)
     ),
-    "Women's": products.filter((p) => p.title.includes("Wo's")),
+    "Women's": products.filter((p) => isWomens(p)),
   }
 
   return (

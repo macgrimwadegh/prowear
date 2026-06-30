@@ -10,7 +10,6 @@ import {
 const FETCH_TAGS = ['Workwear', 'Aprons & Overalls']
 const TABS = ['Tops', 'Jackets', 'Shirts', 'Aprons & Overalls', "Women's"]
 
-// Title-based classifiers for the Workwear tag split
 const JACKET_RE = /jacket|fleece|zip|hoodie/i
 const SHIRT_RE = /\bshirt\b/i
 const TEE_RE = /tee|t-shirt/i
@@ -30,25 +29,24 @@ export default async function WorkwearPage() {
 
   const products = excludeProductsWithoutImages(excludeKidsProducts(merged))
 
-  // Aprons & Overalls products are strictly isolated — excluded from all other tabs
   const isApron = (p: (typeof products)[0]) =>
     p.tags.some((t) => t.toLowerCase() === 'aprons & overalls')
+  const isWomens = (p: (typeof products)[0]) => p.title.includes("Wo's")
 
-  const workItems = products.filter((p) => !isApron(p))
+  // workItems: non-apron AND non-women's — base for Tops / Jackets / Shirts
+  const workItems = products.filter((p) => !isApron(p) && !isWomens(p))
 
   const tabGroups = {
-    // Tops: anything that isn't a jacket and isn't a shirt (t-shirts/tees stay here)
     'Tops': workItems.filter(
       (p) => !JACKET_RE.test(p.title) && (!SHIRT_RE.test(p.title) || TEE_RE.test(p.title))
     ),
-    // Jackets: jacket, fleece, any zip style, hoodie
     'Jackets': workItems.filter((p) => JACKET_RE.test(p.title)),
-    // Shirts: "shirt" in title, excluding t-shirts and tees
     'Shirts': workItems.filter(
       (p) => SHIRT_RE.test(p.title) && !TEE_RE.test(p.title)
     ),
-    'Aprons & Overalls': products.filter((p) => isApron(p)),
-    "Women's": products.filter((p) => p.title.includes("Wo's")),
+    // Aprons also exclude women's to keep Women's tab the single source of truth
+    'Aprons & Overalls': products.filter((p) => isApron(p) && !isWomens(p)),
+    "Women's": products.filter((p) => isWomens(p)),
   }
 
   return (

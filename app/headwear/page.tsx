@@ -14,13 +14,16 @@ export default async function HeadwearPage() {
   const raw = await getCollectionProducts(FETCH_TAGS)
   const products = excludeProductsWithoutImages(excludeSafetyProducts(excludeKidsProducts(raw)))
 
+  const isWomens = (p: (typeof products)[0]) => p.title.includes("Wo's")
+  const mens = products.filter((p) => !isWomens(p))
+
   const tabGroups: Record<string, typeof products> = {}
   for (const tag of FETCH_TAGS) {
-    tabGroups[tag] = products.filter((p) =>
+    tabGroups[tag] = mens.filter((p) =>
       p.tags.some((t) => t.toLowerCase() === tag.toLowerCase())
     )
   }
-  tabGroups["Women's"] = products.filter((p) => p.title.includes("Wo's"))
+  tabGroups["Women's"] = products.filter((p) => isWomens(p))
 
   return (
     <div className="min-h-screen bg-white">
