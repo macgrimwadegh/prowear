@@ -194,6 +194,12 @@ export async function getCollectionProducts(tags?: string[]): Promise<ShopifyPro
   return getProductsByTagQuery(tags)
 }
 
+const KIDS_PATTERN = /kids|youth|infant/i
+
+export function excludeKidsProducts(products: ShopifyProduct[]): ShopifyProduct[] {
+  return products.filter((p) => !KIDS_PATTERN.test(p.title))
+}
+
 export async function getProductByHandle(handle: string): Promise<ShopifyProduct | null> {
   const query = `
     ${PRODUCT_FRAGMENT}
